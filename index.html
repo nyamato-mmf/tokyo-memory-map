@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tokyo Memory Map — 1970–90年代の東京を、写真でたどる。</title>
+  <meta name="description" content="1970–90年代頃の東京の写真を、撮影場所とともに地図上でたどるアーカイブ。" />
+
+  <!-- Leaflet -->
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        crossorigin="" />
+
+  <!-- Google Fonts: optional; site falls back gracefully if unavailable -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;600;700&family=Shippori+Mincho:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+  <div class="film-grain" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Tokyo Memory Map home">
+      <span class="brand-mark">◉</span>
+      <span class="brand-name">Tokyo Memory Map</span>
+      <span class="brand-tagline">あの頃の東京に、もう一度出会う。</span>
+    </a>
+
+    <nav class="main-nav">
+      <a href="#map-section">写真を探す</a>
+      <a href="#collections">コレクション</a>
+      <a href="#about">このサイトについて</a>
+      <a href="#guide">ご利用ガイド</a>
+      <button class="icon-button" id="searchFocus" title="検索">⌕</button>
+      <button class="cart-button" id="cartButton" title="カート">
+        🛒 <span id="cartCount">0</span>
+      </button>
+    </nav>
+
+    <button class="mobile-menu" id="mobileMenu">☰</button>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-image"></div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <p class="eyebrow">TOKYO ARCHIVE / 1970–1990s</p>
+        <h1>1970–2000年代の<br>東京を、<br><em>写真でたどる。</em></h1>
+        <p class="hero-copy">
+          かつての街並み、あの頃の風景。<br>
+          一枚ひとつの写真に、撮影場所と時間を添えて。<br>
+          地図の上から、過去の東京をもう一度歩いてみませんか。
+        </p>
+        <a class="paper-button" href="#map-section">写真を探す <span>→</span></a>
+      </div>
+      <div class="hero-caption">TOKYO / MEMORY / MAP<br><span>記録された風景から、都市の記憶をたどる。</span></div>
+    </section>
+
+    <!-- INTRO -->
+    <section class="intro" id="about">
+      <p class="section-kicker">A CITY REMEMBERED</p>
+      <h2>写真には、<br>その場所の記憶が残っている。</h2>
+      <p>
+        1970年代から1990年代に撮影された東京の写真を、撮影場所の緯度・経度とともに記録。
+        写真を「いつ」「どこで」撮られたのかという地理的な情報と重ねることで、
+        変わりゆく東京の風景を、地図から眺めることができます。
+      </p>
+    </section>
+
+    <!-- MAP / SEARCH -->
+    <section class="memory-explorer" id="map-section">
+      <div class="explorer-head">
+        <div>
+          <p class="section-kicker">MEMORY EXPLORER</p>
+          <h2>東京の記憶を、地図から探す。</h2>
+        </div>
+        <p class="explorer-note">写真を選ぶと、撮影地点と記録を表示します。</p>
+      </div>
+
+      <div class="explorer">
+        <aside class="search-panel">
+          <label class="search-box">
+            <span>⌕</span>
+            <input id="searchInput" type="search" placeholder="新宿、銀座、東京タワー…" />
+          </label>
+
+          <div class="filter-group">
+            <span class="filter-label">年代で絞り込む</span>
+            <div class="pills" id="yearFilters">
+              <button class="pill active" data-year="all">すべて</button>
+              <button class="pill" data-year="1970">1970年代</button>
+              <button class="pill" data-year="1980">1980年代</button>
+              <button class="pill" data-year="1990">1990年代</button>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <span class="filter-label">エリアで絞り込む</span>
+            <select id="areaFilter">
+              <option value="all">すべてのエリア</option>
+              <option value="千代田区">千代田区</option>
+              <option value="中央区">中央区</option>
+              <option value="港区">港区</option>
+              <option value="新宿区">新宿区</option>
+              <option value="渋谷区">渋谷区</option>
+              <option value="台東区">台東区</option>
+              <option value="墨田区">墨田区</option>
+              <option value="江東区">江東区</option>
+            </select>
+          </div>
+
+          <div class="result-heading">
+            <span id="resultCount">0</span> 件の記憶
+          </div>
+
+          <div class="photo-list" id="photoList"></div>
+        </aside>
+
+        <div class="map-wrap">
+          <div id="map"></div>
+          <div class="map-compass">N<br><span>↟</span></div>
+          <div class="map-note">© 国土地理院</div>
+        </div>
+
+        <aside class="detail-card" id="detailCard">
+          <div class="detail-photo-wrap">
+            <img id="detailImage" src="" alt="" />
+            <div class="photo-frame-corner">TOKYO MEMORY</div>
+          </div>
+          <div class="detail-body">
+            <div class="detail-meta" id="detailMeta"></div>
+            <h3 id="detailTitle">写真を選択してください</h3>
+            <p id="detailDescription">
+              地図上のピン、または左側の写真一覧から選択できます。
+            </p>
+            <div class="coordinates" id="detailCoordinates"></div>
+            <button class="purchase-button" id="purchaseButton" disabled>
+              この写真を購入する <span>→</span>
+            </button>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- GUIDE -->
+    <section class="guide" id="guide">
+      <p class="section-kicker">HOW IT WORKS</p>
+      <h2>このサイトの楽しみ方</h2>
+      <div class="guide-grid">
+        <div class="guide-item">
+          <span class="guide-number">01</span>
+          <div class="guide-icon">⌖</div>
+          <h3>地図で探す</h3>
+          <p>東京の地図を眺めながら、写真が撮影された場所を探します。</p>
+        </div>
+        <div class="guide-item">
+          <span class="guide-number">02</span>
+          <div class="guide-icon">▧</div>
+          <h3>写真を選ぶ</h3>
+          <p>気になる一枚を選ぶと、撮影年・場所・当時の記録を確認できます。</p>
+        </div>
+        <div class="guide-item">
+          <span class="guide-number">03</span>
+          <div class="guide-icon">🛒</div>
+          <h3>購入する</h3>
+          <p>高画質データやプリントなど、用途に合わせて購入できます。</p>
+        </div>
+        <div class="guide-item">
+          <span class="guide-number">04</span>
+          <div class="guide-icon">↓</div>
+          <h3>あなたの記憶に</h3>
+          <p>かつて見た東京を、写真というかたちで手元に残せます。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- COLLECTIONS -->
+    <section class="collections" id="collections">
+      <div class="section-head">
+        <div>
+          <p class="section-kicker">CURATED MEMORIES</p>
+          <h2>おすすめコレクション</h2>
+        </div>
+        <a href="#map-section">すべて見る →</a>
+      </div>
+      <div class="collection-grid">
+        <button class="collection-card" data-search="銀座">
+          <div class="collection-image img-ginza"></div>
+          <span>銀座・有楽町</span>
+          <small>街の灯りと、夜の記憶</small>
+        </button>
+        <button class="collection-card" data-search="新宿">
+          <div class="collection-image img-shinjuku"></div>
+          <span>新宿・渋谷</span>
+          <small>人の波、ネオン、駅前の風景</small>
+        </button>
+        <button class="collection-card" data-search="上野">
+          <div class="collection-image img-ueno"></div>
+          <span>上野・浅草</span>
+          <small>変わらない東京、変わった東京</small>
+        </button>
+        <button class="collection-card" data-search="鉄道">
+          <div class="collection-image img-rail"></div>
+          <span>東京の鉄道</span>
+          <small>車窓から見た、あの日の街</small>
+        </button>
+        <button class="collection-card" data-search="">
+          <div class="collection-image img-other"></div>
+          <span>その他のエリア</span>
+          <small>まだ見つかっていない東京</small>
+        </button>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="closing">
+      <div class="closing-inner">
+        <p class="section-kicker">THE CITY CHANGES. MEMORIES REMAIN.</p>
+        <h2>あの頃の東京を、<br>あなたの記憶の中へ。</h2>
+        <p>写真を探すことは、過去の東京を歩き直すこと。</p>
+        <a class="paper-button dark" href="#map-section">写真を見る <span>→</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-brand">
+      <span class="brand-mark">◉</span>
+      <span class="brand-name">Tokyo Memory Map</span>
+      <span>あの頃の東京に、もう一度出会う。</span>
+    </div>
+    <div class="footer-links">
+      <a href="#map-section">写真を探す</a>
+      <a href="#collections">コレクション</a>
+      <a href="#guide">ご利用ガイド</a>
+      <a href="#about">このサイトについて</a>
+      <a href="#">Instagram</a>
+      <a href="#">X</a>
+    </div>
+    <p class="copyright">© 2026 Tokyo Memory Map. All rights reserved.</p>
+  </footer>
+
+  <!-- PHOTO LIGHTBOX -->
+  <div class="photo-lightbox" id="photoLightbox" aria-hidden="true">
+    <div class="photo-lightbox-backdrop" data-close-lightbox></div>
+    <div class="photo-lightbox-dialog" role="dialog" aria-modal="true" aria-label="写真の拡大表示">
+      <button class="lightbox-close" id="lightboxClose" data-close-lightbox aria-label="閉じる">×</button>
+      <div class="lightbox-image-wrap">
+        <img id="lightboxImage" src="" alt="" />
+        <span class="lightbox-watermark">TOKYO MEMORY</span>
+      </div>
+      <div class="lightbox-info">
+        <div>
+          <p class="lightbox-meta" id="lightboxMeta"></p>
+          <h2 id="lightboxTitle"></h2>
+          <p id="lightboxDescription"></p>
+        </div>
+        <div class="lightbox-location" id="lightboxLocation"></div>
+      </div>
+      <div class="lightbox-actions">
+        <button class="lightbox-action lightbox-purchase" id="lightboxPurchase">この写真を購入する <span>→</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="purchaseModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="purchase-modal">
+      <button class="modal-close" data-close-modal>×</button>
+      <p class="section-kicker">PURCHASE</p>
+      <h2 id="modalTitle">写真を購入する</h2>
+      <p id="modalDescription"></p>
+      <div class="purchase-options">
+        <button class="purchase-option" data-type="digital">
+          <strong>高画質デジタル</strong>
+          <span>個人利用向け</span>
+          <b>¥3,000〜</b>
+        </button>
+        <button class="purchase-option" data-type="print">
+          <strong>プリント</strong>
+          <span>額装・作品用紙など</span>
+          <b>¥8,000〜</b>
+        </button>
+        <button class="purchase-option" data-type="commercial">
+          <strong>商用ライセンス</strong>
+          <span>出版・広告・映像など</span>
+          <b>お問い合わせ</b>
+        </button>
+      </div>
+      <p class="modal-footnote">※価格・ライセンス条件は実運用時に設定してください。</p>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
