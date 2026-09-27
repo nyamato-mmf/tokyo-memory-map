@@ -1811,9 +1811,9 @@ document.addEventListener(
     // Auto refresh
     // --------------------------------------------------------
 
-    setInterval(
-      refreshData,
-      5000
-    );
+    //setInterval(
+      //refreshData,
+      //5000
+    //);
   }
 );
