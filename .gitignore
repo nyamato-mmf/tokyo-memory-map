@@ -1,7 +1,12 @@
+# Ignore the following directories
 _old
-_python
+_python/
 docker/
 photo_hi_res/
+
+# Ignore the following files
+01_shooting_location.ipynb
+02_photo_optimize.ipynb
 
 db_test.php
 db_test.php
