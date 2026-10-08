@@ -509,25 +509,30 @@ async function openStreetViewForPhoto(
   try {
 
     // --------------------------------------------------------
-    // Google Maps API
+    // 1. Google Maps API
     // --------------------------------------------------------
 
     await loadGoogleMapsAPI();
 
 
     // --------------------------------------------------------
-    // Street View library
+    // 2. Street View library
     // --------------------------------------------------------
 
     const {
       StreetViewService,
       StreetViewSource,
-      StreetViewPreference
+      StreetViewPreference,
+      StreetViewPanorama
     } =
       await google.maps.importLibrary(
         "streetView"
       );
 
+
+    // --------------------------------------------------------
+    // 3. Street View Service
+    // --------------------------------------------------------
 
     if (!streetViewService) {
 
@@ -537,18 +542,8 @@ async function openStreetViewForPhoto(
 
 
     // --------------------------------------------------------
-    // ★屋外のみ検索
+    // 4. 屋外Street Viewを検索
     // --------------------------------------------------------
-    //
-    // sources:
-    //   OUTDOOR
-    //
-    // preference:
-    //   NEAREST
-    //
-    // 写真の撮影地点から50m以内で、
-    // 最も近い屋外Street Viewを探します。
-    //
 
     const result =
       await streetViewService.getPanorama(
@@ -561,12 +556,15 @@ async function openStreetViewForPhoto(
               Number(p.lon)
           },
 
+          // 撮影地点から50m以内
           radius:
             50,
 
+          // 最も近いものを優先
           preference:
             StreetViewPreference.NEAREST,
 
+          // ★屋外のみ
           sources:
             [
               StreetViewSource.OUTDOOR
@@ -576,7 +574,7 @@ async function openStreetViewForPhoto(
 
 
     // --------------------------------------------------------
-    // Street Viewが見つからない場合
+    // 5. 結果確認
     // --------------------------------------------------------
 
     if (
@@ -594,24 +592,46 @@ async function openStreetViewForPhoto(
 
 
     // --------------------------------------------------------
-    // 見つかったパノラマ位置
+    // 6. pano IDを取得
     // --------------------------------------------------------
 
-    const position =
-      result.data.location.latLng;
+    const panoId =
+      result.data.location.pano;
 
 
-    // --------------------------------------------------------
-    // StreetViewPanorama
-    // --------------------------------------------------------
+    if (!panoId) {
 
-    const {
-      StreetViewPanorama
-    } =
-      await google.maps.importLibrary(
-        "streetView"
+      alert(
+        "Street Viewのパノラマ情報を取得できませんでした。"
       );
 
+      return;
+    }
+
+
+    // --------------------------------------------------------
+    // 7. ★ここが重要
+    //
+    //    Panoramaを作る前に
+    //    コンテナを表示する
+    // --------------------------------------------------------
+
+    streetViewPanel.style.display =
+      "block";
+
+
+    // ブラウザにレイアウトを反映させる
+    await new Promise(
+      resolve =>
+        requestAnimationFrame(
+          resolve
+        )
+    );
+
+
+    // --------------------------------------------------------
+    // 8. StreetViewPanorama
+    // --------------------------------------------------------
 
     if (
       !streetViewPanorama
@@ -621,9 +641,10 @@ async function openStreetViewForPhoto(
         new StreetViewPanorama(
           streetViewPano,
           {
-            position:
 
-              position,
+            // pano IDを直接指定
+            pano:
+              panoId,
 
             pov: {
               heading:
@@ -658,22 +679,30 @@ async function openStreetViewForPhoto(
 
     } else {
 
-      streetViewPanorama.setPosition(
-        position
+      // 既存Panoramaを再利用
+
+      streetViewPanorama.setPano(
+        panoId
+      );
+
+      streetViewPanorama.setPov(
+        {
+          heading:
+            0,
+
+          pitch:
+            0
+        }
+      );
+
+      streetViewPanorama.setZoom(
+        1
       );
 
       streetViewPanorama.setVisible(
         true
       );
     }
-
-
-    // --------------------------------------------------------
-    // 表示
-    // --------------------------------------------------------
-
-    streetViewPanel.style.display =
-      "block";
 
 
   } catch (e) {
@@ -683,6 +712,13 @@ async function openStreetViewForPhoto(
       e
     );
 
+
+    // エラー時はパネルを閉じる
+
+    streetViewPanel.style.display =
+      "none";
+
+
     alert(
       "Street Viewを読み込めませんでした。\n\n" +
       (
@@ -690,6 +726,7 @@ async function openStreetViewForPhoto(
         e
       )
     );
+
 
   } finally {
 
