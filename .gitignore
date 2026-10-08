@@ -12,3 +12,6 @@ db_test.php
 db_test.php
 docker-compose.yml
 index.php
+
+*.pptx
+*.txt
