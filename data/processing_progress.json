@@ -44,12 +44,13 @@
     "processed": 0
   },
   "1981": {
-    "total": 73,
-    "processed": 29
+    "total": 72,
+    "processed": 29,
+    "gave_up": 1
   },
   "1982": {
     "total": 78,
-    "processed": 33
+    "processed": 35
   },
   "1983": {
     "total": 0,
