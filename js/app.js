@@ -826,7 +826,7 @@ function initMap() {
     "https://cyberjapandata.gsi.go.jp/xyz/pale/{z}/{x}/{y}.png",
     {
       maxZoom:
-        22,
+        18,
 
       attribution:
         "© 国土地理院"
